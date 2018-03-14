@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 ''' проверка deleted
 async
 time format utc this day
@@ -13,77 +14,87 @@ create lib providers email
 
 '''
 import imaplib
-
-from imap_credentials import imap_username, imap_password
+from email.contentmanager import ContentManager
 from email.parser import BytesHeaderParser, BytesParser
 from email.policy import default
 
-from email.contentmanager import ContentManager
-
 from bs4 import BeautifulSoup
 
+from imap_credentials import imap_password, imap_username
 
 mail = imaplib.IMAP4_SSL('imap.gmail.com')
 mail.login(imap_username, imap_password)
 mail.select(mailbox='INBOX', readonly=True)
 
 #_, data = mail.search(None, '(ALL)')
-print(mail.list())
+#print(mail.list())
 typ, data = mail.search(None, 'SINCE 13-Mar-2018')
-print(len(data))
-print(typ, data)
-#print(data[0].[])
+#print(len(data))
+#print(typ, data)
+# print(data[0].[])
+
 for uid in data[0].split()[::-1]:
     # typ1, data1 =    mail.fetch(uid, 'BODY.PEEK[HEADER]')
     # print(uid, typ1, data1)
-    typ1, data1 =    mail.fetch(uid, 'BODY.PEEK[HEADER.FIELDS (FROM TO DATE SUBJECT MESSAGE-ID CC BCC)]')
+    typ1, data1 = mail.fetch(
+        uid, 'BODY.PEEK[HEADER.FIELDS (FROM TO DATE SUBJECT MESSAGE-ID CC BCC)]')
     #(a, (b, c)) =    data1
     #print(typ1, a, b, c)
-    a, b =    data1[0]
-    #print(a)
+    a, b = data1[0]
+    # print(a)
     #print(a, b)
-    #for i in b.split(b'\r\n'):
-     #   print(
+    # for i in b.split(b'\r\n'):
+    #   print(
     headers = BytesHeaderParser(policy=default).parsebytes(b)
-    print(headers)
+    #print(headers)
     #typ2, data2=    mail.fetch(uid, 'BODY.PEEK[TEXT]')
-    typ2, data2=    mail.fetch(uid, 'BODY.PEEK')
-    a2, b2 =    data2[0]
+    typ2, data2 = mail.fetch(uid, '(RFC822)')
+    a2, b2 = data2[0]
     body = BytesParser(policy=default).parsebytes(b2)
-    #print(body)
-    body2 =    body.get_content()
-    st =    body2.find('<html')
-    st2 =    body2.rfind('/html>', st) + 6
-    body3 =    body2[st:st2]
-    #body4 =    body.get_content()
-    #print(body.get_content())
-    #for t in body:
-    #   print(body[t])
-    #print(body4['content-type'].maintype)
-    #print(body.get_body())
+    # print(body)
+    # print(body.get_body()['content-type'])
+    print(body.get_body().items())
+    for part in body.walk():
+        print(part.get_content_type())
+    print(body.get('text/html'))
+#    print(body.get_body('plain'))
+##    pretty = BeautifulSoup(body.get_body(), 'html5lib').get_text()
+##    print(pretty)
     
+'''
+    body2 = body.get_content()
+    st = body2.find('<html')
+    st2 = body2.rfind('/html>', st) + 6
+    body3 = body2[st:st2]
+    #body4 =    body.get_content()
+    # print(body.get_content())
+    # for t in body:
+    #   print(body[t])
+    # print(body4['content-type'].maintype)
+    # print(body.get_body())
+
     #pretty =    BeautifulSoup(body3, 'html.parser').prettify()
     #pretty2 = BeautifulSoup(body3, 'html.parser').get_text()
-    pretty =    BeautifulSoup(body3, 'html5lib').get_text()
+    pretty = BeautifulSoup(body3, 'html5lib').get_text()
     print(pretty)
-    #print(type(body))
+    # print(type(body))
     #body2 =    body.get_body()
-    #print(body2['content-type'].maintype)
+    # print(body2['content-type'].maintype)
     # body3 =    ContentManager.get_content(body)
-    #print(body3)
-     
-    
+    # print(body3)
+
     break
-    
+
     'Delivered-To', 'Received', 'From'
 
-'''
+
 import getpass, imaplib
 
 M = imaplib.IMAP4()
 M.login(getpass.getuser(), getpass.getpass())
 M.select()
 typ, data = M.search(None, 'ALL')
+
 for num in data[0].split():
     typ, data = M.fetch(num, '(RFC822)')
     print('Message %s\n%s\n' % (num, data[0][1]))
