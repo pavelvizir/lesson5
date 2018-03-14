@@ -17,6 +17,7 @@ import imaplib
 from email.contentmanager import ContentManager
 from email.parser import BytesHeaderParser, BytesParser
 from email.policy import default
+import email
 
 from bs4 import BeautifulSoup
 
@@ -32,7 +33,7 @@ typ, data = mail.search(None, 'SINCE 13-Mar-2018')
 #print(len(data))
 #print(typ, data)
 # print(data[0].[])
-
+"""
 for uid in data[0].split()[::-1]:
     # typ1, data1 =    mail.fetch(uid, 'BODY.PEEK[HEADER]')
     # print(uid, typ1, data1)
@@ -53,15 +54,58 @@ for uid in data[0].split()[::-1]:
     body = BytesParser(policy=default).parsebytes(b2)
     # print(body)
     # print(body.get_body()['content-type'])
+'''
     print(body.get_body().items())
     for part in body.walk():
         print(part.get_content_type())
     print(body.get('text/html'))
+'''
+"""
+result, data = mail.uid('search', None, "ALL")
+# search and return uids instead
+# i = len(data[0].split())  # data[0] is a space separate string
+# print(i)
+latest_email_uid = data[0].split()[13]
+result, email_data = mail.uid('fetch', latest_email_uid, '(RFC822)')
+raw_email = email_data[0][1]
+raw_email_string = raw_email.decode('utf-8')
+email_message = email.message_from_string(raw_email_string)
+for part in email_message.walk():
+    if part.get_content_type() == 'text/plain':
+        body = part.get_payload(decode=True)
+        print(body.decode())
+
+
+'''
+
+for x in range(i):
+        latest_email_uid = data[0].split()[x] # unique ids wrt label selected
+        result, email_data = mail.uid('fetch', latest_email_uid, '(RFC822)')
+        # fetch the email body (RFC822) for the given ID
+        raw_email = email_data[0][1]
+        #continue inside the same for loop as above
+        raw_email_string = raw_email.decode('utf-8')
+        # converts byte literal to string removing b''
+        email_message = email.message_from_string(raw_email_string)
+        # this will loop through all the available multiparts in mail
+        for part in email_message.walk():
+            if part.get_content_type() == "text/plain": # ignore attachments/html
+                body = part.get_payload(decode=True)
+                save_string = str("D:Dumpgmailemail_" + str(x) + ".eml")
+                # location on disk
+                myfile = open(save_string, 'a')
+                myfile.write(body.decode('utf-8'))
+                # body is again a byte literal
+                myfile.close()
+            else:
+                continue
+
+
 #    print(body.get_body('plain'))
 ##    pretty = BeautifulSoup(body.get_body(), 'html5lib').get_text()
 ##    print(pretty)
     
-'''
+
     body2 = body.get_content()
     st = body2.find('<html')
     st2 = body2.rfind('/html>', st) + 6
