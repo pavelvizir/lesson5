@@ -13,7 +13,8 @@ create lib providers email
 (обратный порядок, break если сообщение есть?)
 
 '''
-import email
+#import email
+#from email.message import Message
 import imaplib
 from email.contentmanager import ContentManager
 # from email.parser import BytesHeaderParser, BytesParser
@@ -48,12 +49,27 @@ raw_email = email_data[0][1]
 # print(email_data[0][0])
 # print(email.message_from_bytes(raw_email).get_keys())
 # print(email.message_from_bytes(raw_email).get_body(preference_list=('plain')))
-body = BytesParser(policy=email.policy.default).parsebytes(raw_email)
+#body = BytesParser(policy=email.policy.default).parsebytes(raw_email)
+body = BytesParser(policy=default).parsebytes(raw_email)
+print(type(body))
+print(body.keys())
+print(body['Date'])
+#print(body.get('Content-Type'))
 txt = body.get_body(preferencelist=('plain'))
-print(type(txt))
-print(txt.get_content())
 
+print(type(txt))
+print(txt.keys())
+
+for part in body.walk():
+    print(type(part))
+    print(part.get_content_type())
 '''
+html =    body.get_body(preferencelist=('htnl'))
+print(type(html))
+print(html.keys())
+#print(txt.get_content())
+
+
 raw_email_string = raw_email.decode('utf-8')
 email_message = email.message_from_string(raw_email_string)
 
