@@ -20,7 +20,7 @@ from email.contentmanager import ContentManager
 # from email.parser import BytesHeaderParser, BytesParser
 from email.policy import default
 from email.parser import BytesParser
-# from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 
 from imap_credentials import imap_password, imap_username
 
@@ -53,17 +53,39 @@ raw_email = email_data[0][1]
 body = BytesParser(policy=default).parsebytes(raw_email)
 print(type(body))
 print(body.keys())
+print(body.items())
 print(body['Date'])
 #print(body.get('Content-Type'))
 txt = body.get_body(preferencelist=('plain'))
 
 print(type(txt))
-print(txt.keys())
+# print(txt.keys())
+# print(txt.get_content())
 
 for part in body.walk():
-    print(type(part))
-    print(part.get_content_type())
+    if part.get_content_type() == 'text/html':
+        html = part.get_body()
+    elif part.get_content_type() == 'text/plain':
+        txt2 = part.get_body()
+
+# print(html)
+print(type(html))
+print(type(html.get_content()))
+# print(BeautifulSoup(html.get_content(), 'html5lib').prettify())
+print(txt == txt2)
+
+
 '''
+for part in body.walk():
+    # print(type(part))
+    print(part.get_content_type())
+    for p in part.walk():
+        print('---' + str(p.get_content_type()))
+        for a in p.walk():
+            print('---+++' + str(a.get_content_type()))
+            for r in a.walk():
+                print('---+++===' + str(r.get_content_type()))
+
 html =    body.get_body(preferencelist=('htnl'))
 print(type(html))
 print(html.keys())
