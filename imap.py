@@ -15,10 +15,10 @@ create lib providers email
 '''
 import email
 import imaplib
-# from email.contentmanager import ContentManager
+from email.contentmanager import ContentManager
 # from email.parser import BytesHeaderParser, BytesParser
-# from email.policy import default
-
+from email.policy import default
+from email.parser import BytesParser
 # from bs4 import BeautifulSoup
 
 from imap_credentials import imap_password, imap_username
@@ -46,8 +46,13 @@ raw_email = email_data[0][1]
 # print(len(email_data[0]))
 # print(type(email_data[0][0]))
 # print(email_data[0][0])
-print(email.message_from_bytes(raw_email).get_keys())
+# print(email.message_from_bytes(raw_email).get_keys())
 # print(email.message_from_bytes(raw_email).get_body(preference_list=('plain')))
+body = BytesParser(policy=email.policy.default).parsebytes(raw_email)
+txt = body.get_body(preferencelist=('plain'))
+print(type(txt))
+print(txt.get_content())
+
 '''
 raw_email_string = raw_email.decode('utf-8')
 email_message = email.message_from_string(raw_email_string)
