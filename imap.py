@@ -37,17 +37,54 @@ result, data = mail.uid('search', None, "ALL")
 # search and return uids instead
 # i = len(data[0].split())  # data[0] is a space separate string
 # print(i)
+print(data[0].split()[13])
+
 latest_email_uid = data[0].split()[13]
 result, email_data = mail.uid('fetch', latest_email_uid, '(RFC822)')
 raw_email = email_data[0][1]
 raw_email_string = raw_email.decode('utf-8')
 email_message = email.message_from_string(raw_email_string)
 
-for part in email_message.walk():
-    if part.get_content_type() == 'text/plain':
-        body = part.get_payload(decode=True)
-        print(body.decode())
+print(email_message.keys())
+print(email_message.get('Subject'))
+print(raw_email.get_body(preference_list=('plain')))
 '''
+for part in email_message.walk():
+    print(part.get_content_type())
+
+    if part.get_content_type() == 'text/plain':
+        #body = part.get_payload(decode=True)
+        body = part.get_body(decode=True)
+        print(body.decode())
+
+
+import imaplib
+import config
+import email
+
+conn = imaplib.IMAP4_SSL("imap.gmail.com", 993)
+conn.login(config.GMAIL_USER2, config.GMAIL_PASS2)
+try:
+    conn.select()
+
+    typ, data = conn.search(None, "ALL")
+    print(data)
+    for num in data[0].split():
+        typ, msg_data = conn.fetch(num, '(RFC822)')
+        for response_part in msg_data:
+            if isinstance(response_part, tuple):
+                part = response_part[1].decode('utf-8')
+                msg = email.message_from_string(part)
+                print(msg.keys())
+                print(msg['Date'])
+finally:
+    try:
+        conn.close()
+    except:
+        pass
+    finally:
+        conn.logout()
+
 
 for x in range(i):
         latest_email_uid = data[0].split()[x] # unique ids wrt label selected
@@ -124,8 +161,8 @@ M.logout()
 imap_conn.select('Inbox', readonly=True)
 typ, msg_data = imap_conn.fetch(uid, '(BODY.PEEK[HEADER])')
 or BODY.PEEK[TEXT], etc.
-'''
-"""
+
+
 
 for uid in data[0].split()[::-1]:
     # typ1, data1 =    mail.fetch(uid, 'BODY.PEEK[HEADER]')
@@ -147,11 +184,10 @@ for uid in data[0].split()[::-1]:
     body = BytesParser(policy=default).parsebytes(b2)
     # print(body)
     # print(body.get_body()['content-type'])
-'''
+
     print(body.get_body().items())
 
     for part in body.walk():
         print(part.get_content_type())
     print(body.get('text/html'))
 '''
-"""
