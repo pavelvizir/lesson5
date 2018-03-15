@@ -42,13 +42,20 @@ print(data[0].split()[13])
 latest_email_uid = data[0].split()[13]
 result, email_data = mail.uid('fetch', latest_email_uid, '(RFC822)')
 raw_email = email_data[0][1]
+# print(result, len(email_data))
+# print(len(email_data[0]))
+# print(type(email_data[0][0]))
+# print(email_data[0][0])
+print(email.message_from_bytes(raw_email).get_keys())
+# print(email.message_from_bytes(raw_email).get_body(preference_list=('plain')))
+'''
 raw_email_string = raw_email.decode('utf-8')
 email_message = email.message_from_string(raw_email_string)
 
 print(email_message.keys())
 print(email_message.get('Subject'))
-print(raw_email.get_body(preference_list=('plain')))
-'''
+print(email_data[0][1].get_body(preference_list=('plain')))
+
 for part in email_message.walk():
     print(part.get_content_type())
 
