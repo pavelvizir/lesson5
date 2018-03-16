@@ -64,6 +64,7 @@ def fetch_emails(addr, port, user, pwd,
 
     if reply == 'OK':
         uids_blist = data[0].split()
+        len_uids_blist = len(uids_blist)
 
         if len(uids_blist) < 2:
             if uids_blist[0] > str(uid).encode():
