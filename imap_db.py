@@ -63,6 +63,10 @@ class Mail(Base):
         return 'Mail {} {} {}'.format(self._to, self._from, self._date)
 
 
+def create_structure():
+    Base.metadata.create_all(bind=engine)
+
+
 if __name__ == '__main__':
     Base.metadata.create_all(bind=engine)
     con = sqlite3.connect('mail.sqlite')
