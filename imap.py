@@ -41,14 +41,14 @@ def fetch_emails(addr, port, user, pwd,
                 for header in ['From', 'To', 'Delivered-To',
                                'Message-ID', 'Subject']:
                     email_dict[header] = email[header]
-
+                email_dict['plain'] = None
+                email_dict['html'] = None
                 for part in email.walk():
                     if part.get_content_type() == 'text/html':
                         email_dict['html'] = part.get_body().get_content()
                     elif part.get_content_type() == 'text/plain':
                         email_dict['plain'] = part.get_body().get_content()
                 result.append(email_dict)
-                print(email_dict['Date'])
 
         return result
 
@@ -66,24 +66,29 @@ def fetch_emails(addr, port, user, pwd,
         uids_blist = data[0].split()
         len_uids_blist = len(uids_blist)
 
-        if len(uids_blist) < 2:
+        if len_uids_blist < 2:
             if uids_blist[0] > str(uid).encode():
-                fetch_and_parse(uids_blist)
+                #fetch_and_parse(uids_blist)
 
-                return '1 new mail'
+                # return '1 new mail'
+                return int(uids_blist[0].decode()), False, fetch_and_parse(uids_blist)
 
-            return '0 new mails'
-        elif len(uids_blist) > commit_limit:
-            if len(uids_blist) > mail_limit:
-                fetch_and_parse(uids_blist[-mail_limit:][:commit_limit])
-            else:
-                fetch_and_parse(uids_blist[:commit_limit])
+            # return '0 new mails'
+            return uid, False, False
+        elif len_uids_blist > commit_limit:
+            if len_uids_blist > mail_limit:
+                #fetch_and_parse(uids_blist[-mail_limit:][:commit_limit])
+                        return int(uids_blist[-mail_limit:][:commit_limit][-1].decode()), True, fetch_and_parse(uids_blist[-mail_limit:][:commit_limit])
+            #else:
+                #fetch_and_parse(uids_blist[:commit_limit])
+            return int(uids_blist[:commit_limit][-1].decode()), True, fetch_and_parse(uids_blist[:commit_limit])
 
-            return 'Many new mails'
+            # return 'Many new mails'
         else:
-            fetch_and_parse(uids_blist)
+            #fetch_and_parse(uids_blist)
 
-            return 'Some new mails'
+            #return 'Some new mails'
+            return int(uids_blist[-1].decode()), False, fetch_and_parse(uids_blist)
     else:
         return 'Something wrong'
 
